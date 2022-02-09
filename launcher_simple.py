@@ -55,8 +55,8 @@ results = Parallel(n_jobs=50)(
 )
 meds = pd.DataFrame([res[0] for res in results])
 stds = pd.DataFrame([res[1] for res in results])
-meds.to_csv("Results_dumb_0/medians.csv", index=False)
-stds.to_csv("Results_dumb_0/stdevs.csv", index=False)
+meds.to_csv("Results_simple_0/medians.csv", index=False)
+stds.to_csv("Results_simple_0/stdevs.csv", index=False)
 
 # ===== 2) Scattered mass proxy ===== #
 np.random.seed(42)
@@ -84,8 +84,8 @@ results = Parallel(n_jobs=50)(
 )
 meds = pd.DataFrame([res[0] for res in results])
 stds = pd.DataFrame([res[1] for res in results])
-meds.to_csv("Results_dumb_1/medians.csv", index=False)
-stds.to_csv("Results_dumb_1/stdevs.csv", index=False)
+meds.to_csv("Results_simple_1/medians.csv", index=False)
+stds.to_csv("Results_simple_1/stdevs.csv", index=False)
 
 # ===== 3) Biased mass proxy ===== #
 np.random.seed(42)
@@ -110,8 +110,8 @@ results = Parallel(n_jobs=50)(
 )
 meds = pd.DataFrame([res[0] for res in results])
 stds = pd.DataFrame([res[1] for res in results])
-meds.to_csv("Results_dumb_2/medians.csv", index=False)
-stds.to_csv("Results_dumb_2/stdevs.csv", index=False)
+meds.to_csv("Results_simple_2/medians.csv", index=False)
+stds.to_csv("Results_simple_2/stdevs.csv", index=False)
 '''
 
 # ===== 4) Cut in y ===== #
@@ -134,5 +134,5 @@ results = Parallel(n_jobs=50)(
 )
 meds = pd.DataFrame([res[0] for res in results])
 stds = pd.DataFrame([res[1] for res in results])
-meds.to_csv("Results_dumb_3/medians.csv", index=False)
-stds.to_csv("Results_dumb_3/stdevs.csv", index=False)
+meds.to_csv("Results_simple_3/medians.csv", index=False)
+stds.to_csv("Results_simple_3/stdevs.csv", index=False)
