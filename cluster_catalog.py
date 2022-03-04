@@ -6,7 +6,7 @@ from astropy.table import Table
 from astropy.cosmology import Planck15 as cosmo
 import astropy.units as u
 from copy import copy
-import fkplotlib
+# import fkplotlib
 
 
 class Box:
@@ -394,7 +394,8 @@ class ClusterCatalog:
         ax.set_yscale("log")
         ax.set_xlabel(r"Redshift $z$")
         ax.set_ylabel(r"Mass $M_{500}\;[{\rm M_\odot}]$")
-        fkplotlib.ax_bothticks(ax)
+        ax.xaxis.set_ticks_position("both")
+        ax.yaxis.set_ticks_position("both")
         ax.set_ylim(2e14, 2e15)
 
         # ======== Right axis = E(z)^-2/3 Da^2 Y_500 [Mpc2]
@@ -414,12 +415,7 @@ class ClusterCatalog:
         if add_points:
             cat = self.to_table()
             if "Y_tilde" in cat.columns:  # in SZ observable scale
-                msk = np.zeros(len(cat), dtype="bool")
-                for i in np.random.randint(0, len(cat), 10000):
-                    msk[i] = True
-                ax2.plot(
-                    cat["z"][msk], cat["Y_tilde"][msk], ".", color="tab:red", alpha=0.5
-                )
+                ax2.plot(cat["z"], cat["Y_tilde"], ".", color="tab:red", alpha=0.5)
             else:  # in mass scale
                 ax.plot(cat["z"], cat["M_500"], ".", color="tab:red", alpha=0.5)
 

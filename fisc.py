@@ -161,12 +161,7 @@ class Data:
 
     # ------------------------------------------------------- #
 
-    def fit_lira(
-        self,
-        nmix,
-        nsteps,
-        lira_args={}
-    ):
+    def fit_lira(self, nmix, nsteps, lira_args={}):
         """
         Use the LIRA R package to perform the fit.
 
@@ -362,14 +357,20 @@ class Data:
         """
         x_span = np.array(ax.get_xlim())
         ax.set_xlim(*x_span)
-        y = alpha + beta * x_span
-
-        if setlims:
-            ax.set_ylim(*y)
-
-        if addeq:
-            if label is not None and label != "":
-                label += ": "
-            sign = "+" if alpha >= 0.0 else "-"
-            label = label + f"$y = {beta:.2f} x {sign} {np.abs(alpha):.2f}$"
-        ax.plot(x_span, y, label=label, **kwargs)
+        if isinstance(alpha, float):
+            y = alpha + beta * x_span
+            if setlims:
+                ax.set_ylim(*y)
+            if addeq:
+                if label is not None and label != "":
+                    label += ": "
+                sign = "+" if alpha >= 0.0 else "-"
+                label = label + f"$y = {beta:.2f} x {sign} {np.abs(alpha):.2f}$"
+            ax.plot(x_span, y, label=label, **kwargs)
+        else:
+            x = np.linspace(*x_span, 100)
+            alphas, xs = np.meshgrid(alpha, x)
+            betas, _ = np.meshgrid(beta, x)
+            ys = alphas + betas * xs
+            pct = np.percentile(ys, (16, 84), axis=1)
+            ax.fill_between(x, pct[0], pct[1], alpha=0.3, label=label, **kwargs)
