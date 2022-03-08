@@ -8,7 +8,6 @@ from scipy.ndimage import gaussian_filter
 import astropy.units as u
 import os
 import json
-from fklib.forestplot import ForestPlot
 
 
 def colorline(
