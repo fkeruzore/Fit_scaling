@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import fkplotlib
 import pandas as pd
 import json
 from copy import copy
@@ -8,7 +7,6 @@ from chainconsumer import ChainConsumer
 import sys
 import os
 
-fkplotlib.use_txfonts()
 
 path = sys.argv[1]
 if path[-1] != "/":
@@ -18,7 +16,12 @@ do_indiv = "--indiv" in sys.argv
 cc_big = ChainConsumer()
 dirs = [f for f in os.listdir(path) if os.path.isdir(path + f)]
 
-results_lira = {"alpha.YIZ": [], "beta.YIZ": [], "sigma.YIZ.0": [], "sigma.XIZ.0": []}
+results_lira = {
+    "alpha.YIZ": [],
+    "beta.YIZ": [],
+    "sigma.YIZ.0": [],
+    "sigma.XIZ.0": [],
+}
 
 
 def rename_params(cc):
@@ -99,8 +102,7 @@ cc_big.configure(
 rename_params(cc_big)
 cc_big.configure_truth(linestyle=":", linewidth=2, color="#FFFFFF", alpha=0.3)
 cfig_big = cc_big.plotter.plot_distributions(
-    figsize=(7, 4),
-    truth=[-0.19, 1.79, 0.025],
+    figsize=(7, 4), truth=[-0.19, 1.79, 0.025],
 )
 cfig_big.align_labels()
 cfig_big.subplots_adjust(left=0.1, right=0.9, top=0.8, bottom=0.2, wspace=0)
@@ -122,10 +124,9 @@ cc.add_chain(
 cc.configure(cmap="RdBu_r", sigmas=[1], summary=False)
 rename_params(cc)
 cc.configure_truth(linestyle=":", linewidth=2, color="#FFFFFF", alpha=0.3)
-cfig = cc.plotter.plot(
-    figsize=(7, 7),
-    truth=[-0.19, 1.79, 0.025],
-)
+cfig = cc.plotter.plot(figsize=(7, 7), truth=[-0.19, 1.79, 0.025],)
 cfig.align_labels()
-cfig.subplots_adjust(left=0.15, right=0.85, top=0.85, bottom=0.15, wspace=0, hspace=0)
+cfig.subplots_adjust(
+    left=0.15, right=0.85, top=0.85, bottom=0.15, wspace=0, hspace=0
+)
 cfig.savefig(f"{path}/corner.pdf")

@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from astropy.table import Table
 import pandas as pd
 from chainconsumer import ChainConsumer
-import fkplotlib
 import subprocess
 import json
 import os
@@ -11,18 +10,21 @@ from copy import copy
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 
-#fkplotlib.use_txfonts()
+_kwargs = {
+    "fmt": "o",
+    "mec": "k",
+    "ecolor": "k",
+    "ms": 4,
+    "capsize": 2,
+    "elinewidth": 1.0,
+    "capthick": 1.0,
+    "mew": 1.0,
+}
 
 
 class Data:
     def __init__(
-        self,
-        x_obs,
-        y_obs,
-        x_err,
-        y_err,
-        corr=None,
-        y_threshold=None,
+        self, x_obs, y_obs, x_err, y_err, corr=None, y_threshold=None,
     ):
 
         """
@@ -59,8 +61,14 @@ class Data:
         self.covmats = np.array(
             [
                 [
-                    [self.x_err[i] ** 2, corr[i] * self.x_err[i] * self.y_err[i]],
-                    [corr[i] * self.x_err[i] * self.y_err[i], self.y_err[i] ** 2],
+                    [
+                        self.x_err[i] ** 2,
+                        corr[i] * self.x_err[i] * self.y_err[i],
+                    ],
+                    [
+                        corr[i] * self.x_err[i] * self.y_err[i],
+                        self.y_err[i] ** 2,
+                    ],
                 ]
                 for i in range(self.n_pts)
             ]
@@ -95,7 +103,9 @@ class Data:
             table[x_err].data,
             table[y_err].data,
             corr=table[corr].data if corr is not None else None,
-            y_threshold=table[y_threshold].data if y_threshold is not None else None,
+            y_threshold=table[y_threshold].data
+            if y_threshold is not None
+            else None,
         )
 
     # ------------------------------------------------------- #
@@ -197,19 +207,18 @@ class Data:
 
         # Format data to give to LIRA
         d = self.to_table().to_pandas()
-        with ro.conversion.localconverter(ro.default_converter + pandas2ri.converter):
+        with ro.conversion.localconverter(
+            ro.default_converter + pandas2ri.converter
+        ):
             d_r = ro.conversion.py2rpy(d)
 
         # Run the fit
-        chains_r = lira_py(
-            d_r,
-            int(nsteps),
-            int(nmix),
-            **lira_args
-        )
+        chains_r = lira_py(d_r, int(nsteps), int(nmix), **lira_args)
 
         # Fetch chains and format them
-        with ro.conversion.localconverter(ro.default_converter + pandas2ri.converter):
+        with ro.conversion.localconverter(
+            ro.default_converter + pandas2ri.converter
+        ):
             chains = ro.conversion.rpy2py(chains_r)
         self.lira_chains = chains
 
@@ -218,7 +227,6 @@ class Data:
     # ------------------------------------------------------- #
 
     def plot_lira_results(self, nmix=1, truth=None, chains_file=None):
-
         def rename_params(cc):
             for chain in cc.chains:
                 for i, p in enumerate(chain.parameters):
@@ -282,8 +290,7 @@ class Data:
         )
         ax.plot(x, y, color="tab:blue", label="Modeled distribution")
         ax.set_xlabel(self.xlabel)
-        fkplotlib.ax_bothticks(ax)
-        fkplotlib.ax_legend(ax)
+        ax.legend(frameon=False)
         fig_hist.savefig(self.path_to_results + "/hist.pdf")
         plt.close(fig_hist)
 
@@ -302,7 +309,7 @@ class Data:
             (tuple) fig, ax
         """
 
-        kw = fkplotlib.get_errorbar_kwargs()
+        kw = _kwargs
         fig, ax = plt.subplots(figsize=(5, 5))
 
         if style == "ellipse":
@@ -332,7 +339,12 @@ class Data:
             ax.plot(self.x_obs, self.y_obs, "kD", ms=2)
         elif style == "errb":
             ax.errorbar(
-                self.x_obs, self.y_obs, xerr=self.x_err, yerr=self.y_err, mfc="w", **kw
+                self.x_obs,
+                self.y_obs,
+                xerr=self.x_err,
+                yerr=self.y_err,
+                mfc="w",
+                **kw,
             )
         else:
             ax.plot(self.x_obs, self.y_obs, "o", mfc="w", mec="k")
@@ -365,7 +377,9 @@ class Data:
                 if label is not None and label != "":
                     label += ": "
                 sign = "+" if alpha >= 0.0 else "-"
-                label = label + f"$y = {beta:.2f} x {sign} {np.abs(alpha):.2f}$"
+                label = (
+                    label + f"$y = {beta:.2f} x {sign} {np.abs(alpha):.2f}$"
+                )
             ax.plot(x_span, y, label=label, **kwargs)
         else:
             x = np.linspace(*x_span, 100)
@@ -373,4 +387,7 @@ class Data:
             betas, _ = np.meshgrid(beta, x)
             ys = alphas + betas * xs
             pct = np.percentile(ys, (16, 84), axis=1)
-            ax.fill_between(x, pct[0], pct[1], alpha=0.3, label=label, **kwargs)
+            ax.fill_between(
+                x, pct[0], pct[1], alpha=0.3, label=label, **kwargs
+            )
+

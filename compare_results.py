@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import fkplotlib
 import pandas as pd
 import json
 from copy import copy
@@ -8,8 +7,7 @@ from chainconsumer import ChainConsumer
 import sys
 import os
 
-fkplotlib.use_txfonts()
-mycmap = "Spectral" #fkplotlib.get_cmap("better_spectral")
+mycmap = "Spectral"
 
 # arg = sys.argv[1]
 # names = sorted(os.listdir(arg))
@@ -69,7 +67,9 @@ plt.style.use("dark_background")
 
 cc = ChainConsumer()
 for lira, name in zip(results_lira, names):
-    cc.add_chain(lira, name=name.replace("_", r"\_"), shade_alpha=0, shade_gradient=0)
+    cc.add_chain(
+        lira, name=name.replace("_", r"\_"), shade_alpha=0, shade_gradient=0
+    )
 cc.configure(cmap=mycmap, sigmas=[1])
 cc.configure_truth(color="#FFFFFF", linestyle=":", alpha=0.5, linewidth=2)
 rename_params(cc)
@@ -84,7 +84,7 @@ cfig.savefig("corner.pdf")
 
 cfig = cc.plotter.plot_summary(
     truth=truth,
-    #extents=[(-0.19 - 0.25, -0.19 + 0.25), (1.79 - 3.0, 1.79 + 1.0)],
+    # extents=[(-0.19 - 0.25, -0.19 + 0.25), (1.79 - 3.0, 1.79 + 1.0)],
 )
 cfig.align_labels()
 cfig.savefig("summary.pdf")

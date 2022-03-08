@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from iminuit import Minuit
-import fkplotlib
 import pandas as pd
 import json
 from copy import copy
@@ -10,12 +9,13 @@ from chainconsumer import ChainConsumer
 import sys
 import os
 
-fkplotlib.use_txfonts()
 
 paths = sys.argv[1:]
 
 results_lira = [{"alpha.YIZ": [], "beta.YIZ": []} for _ in paths]
-results_lira = [{"alpha.YIZ": [], "beta.YIZ": [], "sigma.YIZ.0": []} for _ in paths]
+results_lira = [
+    {"alpha.YIZ": [], "beta.YIZ": [], "sigma.YIZ.0": []} for _ in paths
+]
 params_toplot = list(results_lira[0].keys())
 
 
@@ -40,7 +40,9 @@ for lira, path in zip(results_lira, paths):
         _dir = f"{path}/{i}/"
         print(_dir)
         try:
-            chains_lira = pd.read_csv(f"{_dir}/chains.csv", sep=",")[params_toplot]
+            chains_lira = pd.read_csv(f"{_dir}/chains.csv", sep=",")[
+                params_toplot
+            ]
             kde = gaussian_kde(np.array(chains_lira).T)
         except:
             print(f"No data for {i}")

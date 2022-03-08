@@ -6,7 +6,6 @@ from astropy.table import Table
 from astropy.cosmology import Planck15 as cosmo
 import astropy.units as u
 from copy import copy
-# import fkplotlib
 
 
 class Box:
@@ -168,7 +167,11 @@ class ClusterCatalog:
 
     @classmethod
     def from_massfunc(
-        cls, n, limits_M=(1e14, 2e15), limits_z=(1e-3, 1.5), mass_func_file=None
+        cls,
+        n,
+        limits_M=(1e14, 2e15),
+        limits_z=(1e-3, 1.5),
+        mass_func_file=None,
     ):
         """
         Creates a sample of clusters that follows a mass function.
@@ -226,11 +229,17 @@ class ClusterCatalog:
         n_draws = 10000
         while len(catalog) < n:
             rd_pts = {
-                "z": np.random.uniform(redshifts.min(), redshifts.max(), n_draws),
+                "z": np.random.uniform(
+                    redshifts.min(), redshifts.max(), n_draws
+                ),
                 "M": np.random.uniform(masses.min(), masses.max(), n_draws),
-                "d2n_dMdz": np.random.uniform(d2n_dmdz.min(), d2n_dmdz.max(), n_draws),
+                "d2n_dMdz": np.random.uniform(
+                    d2n_dmdz.min(), d2n_dmdz.max(), n_draws
+                ),
             }
-            are_sel = interp_massfunc(rd_pts["z"], rd_pts["M"]) > rd_pts["d2n_dMdz"]
+            are_sel = (
+                interp_massfunc(rd_pts["z"], rd_pts["M"]) > rd_pts["d2n_dMdz"]
+            )
             for i in np.where(are_sel)[0]:
                 catalog.add_row([rd_pts["z"][i], rd_pts["M"][i]])
         catalog = catalog[0:n]
@@ -254,7 +263,12 @@ class ClusterCatalog:
         log_M_tilde = np.log10(M_tilde)
         log_Y_tilde = np.random.normal(alpha + beta * log_M_tilde, sigma)
         Y_tilde = 10 ** log_Y_tilde
-        Y_500 = Y_tilde * cosmo.efunc(self.z) ** (2.0 / 3.0) * 1e-4 * u.Unit("Mpc2")
+        Y_500 = (
+            Y_tilde
+            * cosmo.efunc(self.z) ** (2.0 / 3.0)
+            * 1e-4
+            * u.Unit("Mpc2")
+        )
 
         self.M_tilde = M_tilde
         self.log_M_tilde = np.log10(M_tilde)
@@ -262,7 +276,13 @@ class ClusterCatalog:
         self.log_Y_tilde = np.log10(Y_tilde)
         self.Y_500 = Y_500
 
-        for qty in ["M_tilde", "log_M_tilde", "Y_tilde", "log_Y_tilde", "Y_500"]:
+        for qty in [
+            "M_tilde",
+            "log_M_tilde",
+            "Y_tilde",
+            "log_Y_tilde",
+            "Y_500",
+        ]:
             if qty not in self.qts:
                 self.qts.append(qty)
 
@@ -317,13 +337,18 @@ class ClusterCatalog:
         self.corr = corr_logYlogM
         covmats = [
             np.array([[dY ** 2, rho * dY * dM], [rho * dY * dM, dM ** 2]])
-            for rho, dY, dM in zip(corr_logYlogM, err_log_Y_tilde, err_log_M_tilde)
+            for rho, dY, dM in zip(
+                corr_logYlogM, err_log_Y_tilde, err_log_M_tilde
+            )
         ]
 
         # ======== Create perturbations
         if shake:
             perturbs = np.array(
-                [np.random.multivariate_normal([0, 0], covmat) for covmat in covmats]
+                [
+                    np.random.multivariate_normal([0, 0], covmat)
+                    for covmat in covmats
+                ]
             )
             self.log_Y_tilde += perturbs[:, 0]
             self.log_M_tilde += perturbs[:, 1]
@@ -415,9 +440,13 @@ class ClusterCatalog:
         if add_points:
             cat = self.to_table()
             if "Y_tilde" in cat.columns:  # in SZ observable scale
-                ax2.plot(cat["z"], cat["Y_tilde"], ".", color="tab:red", alpha=0.5)
+                ax2.plot(
+                    cat["z"], cat["Y_tilde"], ".", color="tab:red", alpha=0.5
+                )
             else:  # in mass scale
-                ax.plot(cat["z"], cat["M_500"], ".", color="tab:red", alpha=0.5)
+                ax.plot(
+                    cat["z"], cat["M_500"], ".", color="tab:red", alpha=0.5
+                )
 
         # ======== Add boxes
         for box in self.boxes:
@@ -439,7 +468,9 @@ def planck_scaling_relation(z, M_500, scatter=True):
 
     M_tilde = (M_500.to("Msun") / (6e14 * u.Msun)).value
     log_M_tilde = np.log10(M_tilde)
-    log_Y_tilde = np.random.normal(log_Y_star + alpha * log_M_tilde, sigma_log_Y_star)
+    log_Y_tilde = np.random.normal(
+        log_Y_star + alpha * log_M_tilde, sigma_log_Y_star
+    )
     Y_tilde = 10 ** log_Y_tilde
     Y_500 = Y_tilde * cosmo.efunc(z) ** (2.0 / 3.0) * 1e-4 * u.Unit("Mpc2")
     return M_tilde, Y_tilde, Y_500

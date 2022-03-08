@@ -2,13 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.table import Table
 import json
-import fkplotlib
 import cluster_catalog
 from fisc import Data
 from joblib import Parallel, delayed
 from copy import copy
 
-fkplotlib.use_txfonts()
 # plt.ion()
 
 """
@@ -26,6 +24,7 @@ n_threads = 50
 
 truth = {"alpha": -0.19, "beta": 1.79, "sigma": 0.075}  # Planck
 path_to_results = f"./Results_24/"
+
 
 def process(i, do_plots=False):
 
@@ -46,7 +45,7 @@ def process(i, do_plots=False):
         corr="corr",
     )
 
-    #d.y_threshold = np.ones(d.n_pts) * np.min(d.y_threshold)
+    # d.y_threshold = np.ones(d.n_pts) * np.min(d.y_threshold)
     d.y_threshold = None
     d.set_axesnames(
         r"${\rm log}_{10} \, \frac{M_{500}}{\rm 6 \times 10^14 \; M_\odot}$",
@@ -56,20 +55,24 @@ def process(i, do_plots=False):
 
     for nmix in [1]:
         d.set_path_to_results(f"{path_to_results}/{i}/")
-        d.to_table().to_pandas().to_csv(f"{d.path_to_results}/data.csv", index=False)
+        d.to_table().to_pandas().to_csv(
+            f"{d.path_to_results}/data.csv", index=False
+        )
         try:
             d.fit_lira(
                 nmix,
                 5e4,
                 lira_args={
-                    #"alpha.YIZ": truth["alpha"],
+                    # "alpha.YIZ": truth["alpha"],
                     "sigma.YIZ.0": "dunif(0.001, 1.0)",
-                    #"sigma.YIZ.0": float(sigma),
+                    # "sigma.YIZ.0": float(sigma),
                     "sigma.XIZ.0": 0.0,
                     "alpha.XIZ": "dunif(-0.5, 0.5)",
                 },
             )
-            d.lira_chains.to_csv(f"{d.path_to_results}/chains.csv", index=False)
+            d.lira_chains.to_csv(
+                f"{d.path_to_results}/chains.csv", index=False
+            )
 
         except Exception as e:
             print(e)
